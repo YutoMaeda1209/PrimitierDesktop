@@ -17,7 +17,11 @@ namespace YuchiGames.PrimitierDesktop
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
-            GameObject.Find("/HandyCamera/CameraBody").SetActive(false);
+            GameObject mainCanvas = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas");
+            mainCanvas.transform.Find("CameraTab").gameObject.SetActive(false);
+            mainCanvas.transform.Find("CameraTabButton").gameObject.SetActive(false);
+
+            GameObject.Find("/HandyCamera").SetActive(false);
             foreach (Canvas canvas in GameObject.FindObjectsOfType<Canvas>(true))
             {
                 canvas.gameObject.AddComponent<GraphicRaycaster>();
