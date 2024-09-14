@@ -141,7 +141,8 @@ namespace YuchiGames.PrimitierDesktop
             }
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
             {
-                SwitchHideMouse(true);
+                if (_isEscape)
+                    SwitchHideMouse(true);
             }
             if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
             {
