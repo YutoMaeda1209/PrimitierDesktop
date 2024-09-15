@@ -1,4 +1,3 @@
-
 <p align=center>
     <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/releases/latest"><img src="https://img.shields.io/badge/Download-latest-blue?style=for-the-badge"/></a>
     <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/releases"><img src="https://img.shields.io/github/v/release/YutoMaeda1209/PrimitierDesktop?style=for-the-badge"/></a>
@@ -23,9 +22,6 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -33,6 +29,12 @@
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
+    </li>
+    <li>
+        <a href="#usage">Usage</a>
+        <ul>
+            <li><a href="#controls">Controls</a></li>
+        </ul>
     </li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -42,7 +44,7 @@
 
 ## About The Project
 
-
+This is a mod that allows Primitier to be controlled by keyboard and mouse. To avoid interfering with other mods, we have made it so that it does not directly enable or disable any objects in the game as much as possible. Therefore, it can be used as a debugging tool for mods.
 
 ## Getting Started
 
@@ -59,6 +61,23 @@ Install the tools needed to install the mod.
 1. download the mod from the release page.
 2. put `PrimitierDesktop.dll` in Primitier/Mods folder.
 3. Play Primitier!
+
+## Usage
+
+### Controls
+
+| Action           | Left hand | Right hand |
+|------------------|-----------|------------|
+| Toggle hand menu | N         | M          |
+| Toggle grab      | H         | J          |
+| Bind cubes       | T         | Y          |
+| Separate cubes   | U         | I          |
+| Reset position   | Q         | E          |
+
+| Action        | Key         |
+|---------------|-------------|
+| Toggle cursor | Escape      |
+| Rotate hand   | Mouse Wheel |
 
 ## Contributing
 
