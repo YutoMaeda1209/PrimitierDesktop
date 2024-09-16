@@ -21,7 +21,7 @@ namespace YuchiGames.PrimitierDesktop
             mainCanvas.transform.Find("CameraTab").gameObject.SetActive(false);
             mainCanvas.transform.Find("CameraTabButton").gameObject.SetActive(false);
 
-            GameObject.Find("/HandyCamera").SetActive(false);
+            GameObject.Find("/HandyCamera/CameraBody").SetActive(false);
             foreach (Canvas canvas in GameObject.FindObjectsOfType<Canvas>(true))
             {
                 canvas.gameObject.AddComponent<GraphicRaycaster>();
