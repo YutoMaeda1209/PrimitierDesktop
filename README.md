@@ -58,7 +58,7 @@ Install the tools needed to install the mod.
 
 ### Installation
 
-1. download the mod from the release page.
+1. download the mod from [the release page](https://github.com/YutoMaeda1209/PrimitierDesktop/releases/latest).
 2. put `PrimitierDesktop.dll` in Primitier/Mods folder.
 3. Play Primitier!
 
