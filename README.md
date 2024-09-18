@@ -11,9 +11,9 @@
     Mod to allow Primitier to be played without VR equipment.
     <br />
     <br />
-    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/issues/new?assignees=YutoMaeda1209&labels=bug&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
     ·
-    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/issues/new?assignees=YutoMaeda1209&labels=enhancement&template=feature_request.md&title=%5BFEAT%5D">Request Feature</a>
   </p>
 </div>
 
