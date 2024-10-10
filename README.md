@@ -1,7 +1,7 @@
 <p align=center>
-    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/releases/latest"><img src="https://img.shields.io/badge/Download-latest-blue?style=for-the-badge"/></a>
+    <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/releases/latest/download/PrimitierDesktop.dll"><img src="https://img.shields.io/badge/Download-latest-blue?style=for-the-badge"/></a>
     <a href="https://github.com/YutoMaeda1209/PrimitierDesktop/releases"><img src="https://img.shields.io/github/v/release/YutoMaeda1209/PrimitierDesktop?style=for-the-badge"/></a>
-    <a href="https://store.steampowered.com/app/1745170/Primitier/"><img src="https://img.shields.io/badge/Primitier-v1.9.0-limegreen?style=for-the-badge"/></a>
+    <a href="https://store.steampowered.com/app/1745170/Primitier/"><img src="https://img.shields.io/badge/Primitier-v1.10.0-limegreen?style=for-the-badge"/></a>
     <a href="https://discord.com/channels/968161559387979876/1262816599174549524"><img src="https://img.shields.io/badge/-Discord-gray?style=for-the-badge&logo=Discord&logoColor=white"/></a>
 </p>
 
@@ -94,8 +94,8 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=YutoMaeda1209/PrimitierOnlineMod" alt="contrib.rocks image" />
+<a href="https://github.com/YutoMaeda1209/PrimitierDesktop/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=YutoMaeda1209/PrimitierDesktop" alt="contrib.rocks image" />
 </a>
 
 ## License
