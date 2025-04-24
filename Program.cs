@@ -10,10 +10,11 @@ namespace YuchiGames.PrimitierDesktop
     public class Program : MelonMod
     {
         bool _initialized = false;
-        GameObject _xrOrigin = new GameObject();
-        GameObject _leftHandCtrl = new GameObject();
-        GameObject _rightHandCtrl = new GameObject();
+        GameObject _leftHandController = new GameObject();
+        GameObject _rightHandController = new GameObject();
         GameObject _mainCamera = new GameObject();
+        GameObject _xrOrigin = new GameObject();
+        PlayerMovement _playerMovement = new PlayerMovement();
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
@@ -27,36 +28,12 @@ namespace YuchiGames.PrimitierDesktop
                 canvas.gameObject.AddComponent<GraphicRaycaster>();
             }
 
-            _xrOrigin = GameObject.Find("/Player/XR Origin");
-            InputActionMap inputActionMap = _xrOrigin.GetComponent<PlayerInput>()
-                .actions.actionMaps[0];
-            // Move
-            inputActionMap.actions[0].AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/w")
-                .With("Down", "<Keyboard>/s")
-                .With("Left", "<Keyboard>/a")
-                .With("Right", "<Keyboard>/d");
-            // Jump
-            inputActionMap.actions[4].AddBinding("<Keyboard>/space");
-            // Grab
-            inputActionMap.actions[7].AddBinding("<Keyboard>/h");
-            inputActionMap.actions[8].AddBinding("<Keyboard>/j");
-            // Bond
-            inputActionMap.actions[9].AddBinding("<Keyboard>/t");
-            inputActionMap.actions[10].AddBinding("<Keyboard>/y");
-            // Menu
-            inputActionMap.actions[11].AddBinding("<Keyboard>/n");
-            inputActionMap.actions[12].AddBinding("<Keyboard>/m");
-            // Separate
-            inputActionMap.actions[13].AddBinding("<Keyboard>/u");
-            inputActionMap.actions[14].AddBinding("<Keyboard>/i");
-
             _mainCamera = GameObject.Find("/Player/XR Origin/Camera Offset/Main Camera");
             _mainCamera.GetComponent<Camera>().fieldOfView = 90f;
             _mainCamera.GetComponent<TrackedPoseDriver>().enabled = false;
             _mainCamera.transform.localPosition = new Vector3(0f, 1.8f, 0f);
 
-            _leftHandCtrl = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller");
+            _leftHandController = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller");
             Grabber leftGrabber = GameObject.Find("/Player/LeftHand").GetComponent<Grabber>();
             Hand leftHand = leftGrabber.GetComponent<Hand>();
             leftHand.maximumForce = float.PositiveInfinity;
@@ -64,13 +41,54 @@ namespace YuchiGames.PrimitierDesktop
             leftHand.positionSpring = 1000000f;
             leftHand.rotationSpring = 1000000f;
 
-            _rightHandCtrl = GameObject.Find("/Player/XR Origin/Camera Offset/RightHand Controller");
+            _rightHandController = GameObject.Find("/Player/XR Origin/Camera Offset/RightHand Controller");
             Grabber rightGrabber = GameObject.Find("/Player/RightHand").GetComponent<Grabber>();
             Hand rightHand = rightGrabber.GetComponent<Hand>();
             rightHand.maximumForce = float.PositiveInfinity;
             rightHand.maximumTorque = float.PositiveInfinity;
             rightHand.positionSpring = 1000000f;
             rightHand.rotationSpring = 1000000f;
+
+            _xrOrigin = GameObject.Find("/Player/XR Origin");
+            //InputActionMap inputActionMap = _xrOrigin.GetComponent<PlayerInput>()
+            //    .actions.actionMaps[0];
+            //// Move
+            //inputActionMap.actions[0].AddBinding("<GamePad>/leftStick");
+            //inputActionMap.actions[0].AddCompositeBinding("2DVector")
+            //    .With("Up", "<Keyboard>/W")
+            //    .With("Down", "<Keyboard>/S")
+            //    .With("Left", "<Keyboard>/A")
+            //    .With("Right", "<Keyboard>/D");
+            //// Jump
+            //inputActionMap.actions[4].AddBinding("<Keyboard>/Space");
+            //// Grab
+            //inputActionMap.actions[7].AddBinding("<Keyboard>/H");
+            //inputActionMap.actions[8].AddBinding("<Keyboard>/J");
+            //// Bond
+            //inputActionMap.actions[9].AddBinding("<Keyboard>/T");
+            //inputActionMap.actions[10].AddBinding("<Keyboard>/Y");
+            //// Menu
+            //inputActionMap.actions[11].AddBinding("<Keyboard>/N");
+            //inputActionMap.actions[12].AddBinding("<Keyboard>/M");
+            //// Separate
+            //inputActionMap.actions[13].AddBinding("<Keyboard>/U");
+            //inputActionMap.actions[14].AddBinding("<Keyboard>/I");
+
+            //MelonLogger.Msg($"InputActionMapName: {inputActionMap.enabled}, {inputActionMap.name}");
+            //foreach (InputAction action in inputActionMap.actions)
+            //{
+            //    MelonLogger.Msg($"InputActionName: {action.enabled}, {action.name}");
+            //    foreach (InputBinding binding in action.bindings)
+            //    {
+            //        MelonLogger.Msg($"Binding: {binding.path}");
+            //    }
+            //}
+            //foreach (InputDevice device in InputSystem.devices)
+            //{
+            //    MelonLogger.Msg($"Device: {device.name}");
+            //}
+
+            _playerMovement = _xrOrigin.GetComponent<PlayerMovement>();
 
             _initialized = true;
         }
@@ -82,13 +100,16 @@ namespace YuchiGames.PrimitierDesktop
         bool _hideMouse = false;
         bool _isEscape = false;
 
+        bool _isMovementKeyPressed = false;
+        Vector2Int _moveAxis = new Vector2Int(0, 0);
+
         public override void OnUpdate()
         {
             if (!_initialized)
                 return;
 
-            _leftHandCtrl.transform.position = _mainCamera.transform.TransformPoint(_leftHandMove);
-            _leftHandCtrl.transform.rotation = _mainCamera.transform.rotation * Quaternion.Euler(_leftHandRot);
+            _leftHandController.transform.position = _mainCamera.transform.TransformPoint(_leftHandMove);
+            _leftHandController.transform.rotation = _mainCamera.transform.rotation * Quaternion.Euler(_leftHandRot);
 
             if (Input.GetMouseButton(0))
             {
@@ -106,8 +127,8 @@ namespace YuchiGames.PrimitierDesktop
                 _leftHandRot = new Vector3(270f, 0f, 0f);
             }
 
-            _rightHandCtrl.transform.position = _mainCamera.transform.TransformPoint(_rightHandMove);
-            _rightHandCtrl.transform.rotation = _mainCamera.transform.rotation * Quaternion.Euler(_rightHandRot);
+            _rightHandController.transform.position = _mainCamera.transform.TransformPoint(_rightHandMove);
+            _rightHandController.transform.rotation = _mainCamera.transform.rotation * Quaternion.Euler(_rightHandRot);
 
             if (Input.GetMouseButton(1))
             {
@@ -148,6 +169,52 @@ namespace YuchiGames.PrimitierDesktop
             {
                 if (!_isEscape)
                     SwitchHideMouse(false);
+            }
+
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                _isMovementKeyPressed = true;
+                _moveAxis = Vector2Int.up;
+            }
+            else
+            {
+                _isMovementKeyPressed = false;
+            }
+            if (Input.GetKeyUp(KeyCode.S))
+            {
+                _isMovementKeyPressed = true;
+                _moveAxis = Vector2Int.down;
+            }
+            else
+            {
+                _isMovementKeyPressed = false;
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                _isMovementKeyPressed = true;
+            }
+            else
+            {
+                _isMovementKeyPressed = false;
+            }
+            if (Input.GetKeyUp(KeyCode.D))
+            {
+                _isMovementKeyPressed = true;
+            }
+            else
+            {
+                _isMovementKeyPressed = false;
+            }
+        }
+
+        public override void OnFixedUpdate()
+        {
+            if (!_initialized)
+                return;
+
+            if (_isMovementKeyPressed)
+            {
+                _playerMovement.Move(_moveAxis);
             }
         }
 

@@ -8,44 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="0Harmony">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\0Harmony.dll</HintPath>
-		</Reference>
-		<Reference Include="Assembly-CSharp">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="Il2CppInterop.Common">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
-		</Reference>
-		<Reference Include="Il2CppInterop.Runtime">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
-		</Reference>
-		<Reference Include="Il2Cppmscorlib">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
-		</Reference>
-		<Reference Include="MelonLoader">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\MelonLoader.dll</HintPath>
-		</Reference>
-		<Reference Include="Unity.InputSystem">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Unity.InputSystem.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.PhysicsModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.UI">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.UIModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll</HintPath>
+		<Reference Include="$(PRIMITIER_PATH)\MelonLoader\net6\*.dll;$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\*.dll" Exclude="$(PRIMITIER_PATH)\MelonLoader\net6\System.*.dll;$(PRIMITIER_PATH)\MelonLoader\net6\Microsoft.*.dll">
+			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
 
