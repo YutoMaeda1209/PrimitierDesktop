@@ -1,7 +1,7 @@
-﻿using Il2Cpp;
+﻿using HarmonyLib;
+using Il2Cpp;
 using MelonLoader;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 
@@ -14,7 +14,9 @@ namespace YuchiGames.PrimitierDesktop
         GameObject _rightHandController = new GameObject();
         GameObject _mainCamera = new GameObject();
         GameObject _xrOrigin = new GameObject();
+        SphereCollider _sphereCollider;
         PlayerMovement _playerMovement = new PlayerMovement();
+        float airMoveMaxHeight;
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
@@ -50,45 +52,9 @@ namespace YuchiGames.PrimitierDesktop
             rightHand.rotationSpring = 1000000f;
 
             _xrOrigin = GameObject.Find("/Player/XR Origin");
-            //InputActionMap inputActionMap = _xrOrigin.GetComponent<PlayerInput>()
-            //    .actions.actionMaps[0];
-            //// Move
-            //inputActionMap.actions[0].AddBinding("<GamePad>/leftStick");
-            //inputActionMap.actions[0].AddCompositeBinding("2DVector")
-            //    .With("Up", "<Keyboard>/W")
-            //    .With("Down", "<Keyboard>/S")
-            //    .With("Left", "<Keyboard>/A")
-            //    .With("Right", "<Keyboard>/D");
-            //// Jump
-            //inputActionMap.actions[4].AddBinding("<Keyboard>/Space");
-            //// Grab
-            //inputActionMap.actions[7].AddBinding("<Keyboard>/H");
-            //inputActionMap.actions[8].AddBinding("<Keyboard>/J");
-            //// Bond
-            //inputActionMap.actions[9].AddBinding("<Keyboard>/T");
-            //inputActionMap.actions[10].AddBinding("<Keyboard>/Y");
-            //// Menu
-            //inputActionMap.actions[11].AddBinding("<Keyboard>/N");
-            //inputActionMap.actions[12].AddBinding("<Keyboard>/M");
-            //// Separate
-            //inputActionMap.actions[13].AddBinding("<Keyboard>/U");
-            //inputActionMap.actions[14].AddBinding("<Keyboard>/I");
-
-            //MelonLogger.Msg($"InputActionMapName: {inputActionMap.enabled}, {inputActionMap.name}");
-            //foreach (InputAction action in inputActionMap.actions)
-            //{
-            //    MelonLogger.Msg($"InputActionName: {action.enabled}, {action.name}");
-            //    foreach (InputBinding binding in action.bindings)
-            //    {
-            //        MelonLogger.Msg($"Binding: {binding.path}");
-            //    }
-            //}
-            //foreach (InputDevice device in InputSystem.devices)
-            //{
-            //    MelonLogger.Msg($"Device: {device.name}");
-            //}
-
+            _sphereCollider = _xrOrigin.GetComponent<SphereCollider>();
             _playerMovement = _xrOrigin.GetComponent<PlayerMovement>();
+            airMoveMaxHeight = Traverse.Create(typeof(PlayerMovement)).Field("airMoveMaxHeight").GetValue<float>();
 
             _initialized = true;
         }
@@ -102,6 +68,7 @@ namespace YuchiGames.PrimitierDesktop
 
         bool _isMovementKeyPressed = false;
         Vector2Int _moveAxis = new Vector2Int(0, 0);
+        bool _isJumpKeyPressed = false;
 
         public override void OnUpdate()
         {
@@ -174,36 +141,42 @@ namespace YuchiGames.PrimitierDesktop
             if (Input.GetKeyDown(KeyCode.W))
             {
                 _isMovementKeyPressed = true;
-                _moveAxis = Vector2Int.up;
+                _moveAxis.y = 10;
             }
-            else
-            {
-                _isMovementKeyPressed = false;
-            }
-            if (Input.GetKeyUp(KeyCode.S))
+            if (Input.GetKeyDown(KeyCode.S))
             {
                 _isMovementKeyPressed = true;
-                _moveAxis = Vector2Int.down;
+                _moveAxis.y = -10;
             }
-            else
+            if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
             {
-                _isMovementKeyPressed = false;
+                _moveAxis.y = 0;
             }
             if (Input.GetKeyDown(KeyCode.A))
             {
                 _isMovementKeyPressed = true;
+                _moveAxis.x = -10;
             }
-            else
-            {
-                _isMovementKeyPressed = false;
-            }
-            if (Input.GetKeyUp(KeyCode.D))
+            if (Input.GetKeyDown(KeyCode.D))
             {
                 _isMovementKeyPressed = true;
+                _moveAxis.x = 10;
             }
-            else
+            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            {
+                _moveAxis.x = 0;
+            }
+            if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
             {
                 _isMovementKeyPressed = false;
+                _moveAxis = Vector2Int.zero;
+            }
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                float maxDistance = airMoveMaxHeight + _sphereCollider.radius;
+                Vector3 origin = _sphereCollider.transform.TransformPoint(_sphereCollider.center);
+                bool isGrounded = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, maxDistance);
+                _playerMovement.Jump(isGrounded, hit);
             }
         }
 
@@ -214,6 +187,7 @@ namespace YuchiGames.PrimitierDesktop
 
             if (_isMovementKeyPressed)
             {
+                MelonLogger.Msg($"MoveAxis: {_moveAxis}");
                 _playerMovement.Move(_moveAxis);
             }
         }
