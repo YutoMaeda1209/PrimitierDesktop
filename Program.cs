@@ -10,16 +10,20 @@ namespace YuchiGames.PrimitierDesktop
     public class Program : MelonMod
     {
         bool _initialized = false;
-        GameObject _leftHandController = new GameObject();
-        GameObject _rightHandController = new GameObject();
-        GameObject _mainCamera = new GameObject();
-        GameObject _xrOrigin = new GameObject();
-        SphereCollider _sphereCollider;
-        PlayerMovement _playerMovement = new PlayerMovement();
-        float airMoveMaxHeight;
+        GameObject? _leftHandController;
+        GameObject? _rightHandController;
+        GameObject? _mainCamera;
+        GameObject? _xrOrigin;
+        PlayerMovement? _playerMovement;
+        SphereCollider? _footCollider;
+
+        float _airMoveMaxHeight;
+        float _footFrictionOnStop;
+        float _footFrictionOnMove;
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
+            // Camera
             GameObject mainCanvas = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas");
             mainCanvas.transform.Find("CameraTab").gameObject.SetActive(false);
             mainCanvas.transform.Find("CameraTabButton").gameObject.SetActive(false);
@@ -35,6 +39,7 @@ namespace YuchiGames.PrimitierDesktop
             _mainCamera.GetComponent<TrackedPoseDriver>().enabled = false;
             _mainCamera.transform.localPosition = new Vector3(0f, 1.8f, 0f);
 
+            // HandController
             _leftHandController = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller");
             Grabber leftGrabber = GameObject.Find("/Player/LeftHand").GetComponent<Grabber>();
             Hand leftHand = leftGrabber.GetComponent<Hand>();
@@ -51,10 +56,13 @@ namespace YuchiGames.PrimitierDesktop
             rightHand.positionSpring = 1000000f;
             rightHand.rotationSpring = 1000000f;
 
+            // PlayerMovement
             _xrOrigin = GameObject.Find("/Player/XR Origin");
-            _sphereCollider = _xrOrigin.GetComponent<SphereCollider>();
             _playerMovement = _xrOrigin.GetComponent<PlayerMovement>();
-            airMoveMaxHeight = Traverse.Create(typeof(PlayerMovement)).Field("airMoveMaxHeight").GetValue<float>();
+            _footCollider = _playerMovement.footCol;
+            _airMoveMaxHeight = Traverse.Create(typeof(PlayerMovement)).Field("airMoveMaxHeight").GetValue<float>();
+            _footFrictionOnStop = Traverse.Create(typeof(PlayerMovement)).Field("footFrictionOnStop").GetValue<float>();
+            _footFrictionOnMove = Traverse.Create(typeof(PlayerMovement)).Field("footFrictionOnMove").GetValue<float>();
 
             _initialized = true;
         }
@@ -66,9 +74,11 @@ namespace YuchiGames.PrimitierDesktop
         bool _hideMouse = false;
         bool _isEscape = false;
 
-        bool _isMovementKeyPressed = false;
-        Vector2Int _moveAxis = new Vector2Int(0, 0);
-        bool _isJumpKeyPressed = false;
+        Vector2Int _moveAxis = Vector2Int.zero;
+        bool _isPressingWKey = false;
+        bool _isPressingSKey = false;
+        bool _isPressingAKey = false;
+        bool _isPressingDKey = false;
 
         public override void OnUpdate()
         {
@@ -138,43 +148,49 @@ namespace YuchiGames.PrimitierDesktop
                     SwitchHideMouse(false);
             }
 
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                _isMovementKeyPressed = true;
-                _moveAxis.y = 10;
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                _isMovementKeyPressed = true;
-                _moveAxis.y = -10;
-            }
-            if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
+            _isPressingWKey = Input.GetKey(KeyCode.W);
+            _isPressingSKey = Input.GetKey(KeyCode.S);
+            _isPressingAKey = Input.GetKey(KeyCode.A);
+            _isPressingDKey = Input.GetKey(KeyCode.D);
+
+            if (_isPressingWKey && _isPressingSKey)
             {
                 _moveAxis.y = 0;
             }
-            if (Input.GetKeyDown(KeyCode.A))
+            else if (_isPressingWKey)
             {
-                _isMovementKeyPressed = true;
-                _moveAxis.x = -10;
+                _moveAxis.y = 1;
             }
-            if (Input.GetKeyDown(KeyCode.D))
+            else if (_isPressingSKey)
             {
-                _isMovementKeyPressed = true;
-                _moveAxis.x = 10;
+                _moveAxis.y = -1;
             }
-            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            else
+            {
+                _moveAxis.y = 0;
+            }
+
+            if (_isPressingAKey && _isPressingDKey)
             {
                 _moveAxis.x = 0;
             }
-            if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            else if (_isPressingAKey)
             {
-                _isMovementKeyPressed = false;
-                _moveAxis = Vector2Int.zero;
+                _moveAxis.x = -1;
             }
+            else if (_isPressingDKey)
+            {
+                _moveAxis.x = 1;
+            }
+            else
+            {
+                _moveAxis.x = 0;
+            }
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                float maxDistance = airMoveMaxHeight + _sphereCollider.radius;
-                Vector3 origin = _sphereCollider.transform.TransformPoint(_sphereCollider.center);
+                float maxDistance = _airMoveMaxHeight + _footCollider.radius;
+                Vector3 origin = _footCollider.transform.TransformPoint(_footCollider.center);
                 bool isGrounded = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, maxDistance);
                 _playerMovement.Jump(isGrounded, hit);
             }
@@ -185,11 +201,22 @@ namespace YuchiGames.PrimitierDesktop
             if (!_initialized)
                 return;
 
-            if (_isMovementKeyPressed)
+            if (_playerMovement.isMoving)
             {
-                MelonLogger.Msg($"MoveAxis: {_moveAxis}");
-                _playerMovement.Move(_moveAxis);
+                _footCollider.material.dynamicFriction = _footFrictionOnMove;
+                _footCollider.material.staticFriction = _footFrictionOnMove;
             }
+            else
+            {
+                _footCollider.material.dynamicFriction = _footFrictionOnStop;
+                _footCollider.material.staticFriction = _footFrictionOnStop;
+            }
+
+            _playerMovement.Move(_moveAxis);
+            _playerMovement.MoveCollider();
+            _playerMovement.PlayWaterSound();
+            _playerMovement.SwitchGravity();
+            _playerMovement.LimitHeight();
         }
 
         public void SwitchHideMouse(bool isHideButton)
