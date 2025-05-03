@@ -1,6 +1,6 @@
-﻿using HarmonyLib;
-using Il2Cpp;
+﻿using Il2Cpp;
 using MelonLoader;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
@@ -9,15 +9,19 @@ namespace YuchiGames.PrimitierDesktop
 {
     public class Program : MelonMod
     {
-        bool _initialized = false;
-        GameObject? _leftHandController;
-        GameObject? _rightHandController;
-        GameObject? _mainCamera;
-        GameObject? _xrOrigin;
-        PlayerMovement? _playerMovement;
-        SphereCollider? _footCollider;
+        public static SphereCollider FootCollider { set => s_footCollider = value; }
 
-        float _airMoveMaxHeight;
+        GameObject _mainCamera;
+        GameObject _leftHandController;
+        GameObject _leftWindow;
+        GameObject _rightHandController;
+        GameObject _rightWindow;
+        GameObject _xrOrigin;
+        PlayerMovement _playerMovement;
+        static SphereCollider? s_footCollider;
+
+        bool _initialized = false;
+
         float _footFrictionOnStop;
         float _footFrictionOnMove;
 
@@ -47,6 +51,7 @@ namespace YuchiGames.PrimitierDesktop
             leftHand.maximumTorque = float.PositiveInfinity;
             leftHand.positionSpring = 1000000f;
             leftHand.rotationSpring = 1000000f;
+            _leftWindow = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows");
 
             _rightHandController = GameObject.Find("/Player/XR Origin/Camera Offset/RightHand Controller");
             Grabber rightGrabber = GameObject.Find("/Player/RightHand").GetComponent<Grabber>();
@@ -55,14 +60,16 @@ namespace YuchiGames.PrimitierDesktop
             rightHand.maximumTorque = float.PositiveInfinity;
             rightHand.positionSpring = 1000000f;
             rightHand.rotationSpring = 1000000f;
+            _rightWindow = GameObject.Find("/Player/XR Origin/Camera Offset/RightHand Controller/RealRightHand/MenuWindowR/Window");
 
             // PlayerMovement
             _xrOrigin = GameObject.Find("/Player/XR Origin");
             _playerMovement = _xrOrigin.GetComponent<PlayerMovement>();
-            _footCollider = _playerMovement.footCol;
-            _airMoveMaxHeight = Traverse.Create(typeof(PlayerMovement)).Field("airMoveMaxHeight").GetValue<float>();
-            _footFrictionOnStop = Traverse.Create(typeof(PlayerMovement)).Field("footFrictionOnStop").GetValue<float>();
-            _footFrictionOnMove = Traverse.Create(typeof(PlayerMovement)).Field("footFrictionOnMove").GetValue<float>();
+            Type playerMovementType = _playerMovement.GetType();
+            PropertyInfo footFrictionOnStopInfo = playerMovementType.GetProperty("footFrictionOnStop")!;
+            _footFrictionOnStop = (float)footFrictionOnStopInfo.GetValue(_playerMovement)!;
+            PropertyInfo footFrictionOnMoveInfo = playerMovementType.GetProperty("footFrictionOnMove")!;
+            _footFrictionOnMove = (float)footFrictionOnMoveInfo.GetValue(_playerMovement)!;
 
             _initialized = true;
         }
@@ -187,12 +194,21 @@ namespace YuchiGames.PrimitierDesktop
                 _moveAxis.x = 0;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && s_footCollider != null)
             {
-                float maxDistance = _airMoveMaxHeight + _footCollider.radius;
-                Vector3 origin = _footCollider.transform.TransformPoint(_footCollider.center);
+                float maxDistance = s_footCollider.radius;
+                Vector3 origin = s_footCollider.transform.TransformPoint(s_footCollider.center);
                 bool isGrounded = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, maxDistance);
                 _playerMovement.Jump(isGrounded, hit);
+            }
+
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                _leftWindow.SetActive(!_leftWindow.activeSelf);
+            }
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                _rightWindow.SetActive(!_rightWindow.activeSelf);
             }
         }
 
@@ -201,15 +217,18 @@ namespace YuchiGames.PrimitierDesktop
             if (!_initialized)
                 return;
 
-            if (_playerMovement.isMoving)
+            if (s_footCollider != null)
             {
-                _footCollider.material.dynamicFriction = _footFrictionOnMove;
-                _footCollider.material.staticFriction = _footFrictionOnMove;
-            }
-            else
-            {
-                _footCollider.material.dynamicFriction = _footFrictionOnStop;
-                _footCollider.material.staticFriction = _footFrictionOnStop;
+                if (_moveAxis != Vector2.zero)
+                {
+                    s_footCollider.material.dynamicFriction = _footFrictionOnMove;
+                    s_footCollider.material.staticFriction = _footFrictionOnMove;
+                }
+                else
+                {
+                    s_footCollider.material.dynamicFriction = _footFrictionOnStop;
+                    s_footCollider.material.staticFriction = _footFrictionOnStop;
+                }
             }
 
             _playerMovement.Move(_moveAxis);

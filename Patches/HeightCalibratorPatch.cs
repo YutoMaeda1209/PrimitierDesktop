@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
+using UnityEngine;
 
 namespace YuchiGames.PrimitierDesktop.Patches
 {
@@ -8,7 +9,6 @@ namespace YuchiGames.PrimitierDesktop.Patches
     {
         static void Postfix(HeightCalibrator __instance)
         {
-            //HeightCalibrator heightCalibrator = GameObject.FindObjectOfType<HeightCalibrator>();
             __instance.Calibrate();
         }
     }
@@ -18,8 +18,16 @@ namespace YuchiGames.PrimitierDesktop.Patches
     {
         static void Postfix(HeightCalibrator __instance)
         {
-            //HeightCalibrator heightCalibrator = GameObject.FindObjectOfType<HeightCalibrator>();
             __instance.ShowTitleMenu();
+        }
+    }
+
+    [HarmonyPatch(typeof(HeightCalibrator), nameof(HeightCalibrator.ShowTitleMenu))]
+    static class HeightCalibrator_ShowTitleMenuPatch
+    {
+        static void Postfix()
+        {
+            Program.FootCollider = GameObject.Find("/Player/XR Origin").GetComponent<PlayerMovement>().footCol;
         }
     }
 }
