@@ -110,6 +110,22 @@ namespace YuchiGames.PrimitierDesktop
                 _leftHandMove = new Vector3(-0.1f, -0.2f, 0.15f);
                 _leftHandRot = new Vector3(270f, 0f, 0f);
             }
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                _leftWindow.SetActive(!_leftWindow.activeSelf);
+            }
+            if (Input.GetKeyDown(KeyCode.H))
+            {
+
+            }
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+
+            }
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+
+            }
 
             _rightHandController.transform.position = _mainCamera.transform.TransformPoint(_rightHandMove);
             _rightHandController.transform.rotation = _mainCamera.transform.rotation * Quaternion.Euler(_rightHandRot);
@@ -128,6 +144,22 @@ namespace YuchiGames.PrimitierDesktop
             {
                 _rightHandMove = new Vector3(0.1f, -0.2f, 0.15f);
                 _rightHandRot = new Vector3(270f, 0f, 0f);
+            }
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                _rightWindow.SetActive(!_rightWindow.activeSelf);
+            }
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+
+            }
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+
+            }
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+
             }
 
             if (!(Input.GetMouseButton(0) || Input.GetMouseButton(1)) && _hideMouse)
@@ -200,15 +232,6 @@ namespace YuchiGames.PrimitierDesktop
                 Vector3 origin = s_footCollider.transform.TransformPoint(s_footCollider.center);
                 bool isGrounded = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, maxDistance);
                 _playerMovement.Jump(isGrounded, hit);
-            }
-
-            if (Input.GetKeyDown(KeyCode.N))
-            {
-                _leftWindow.SetActive(!_leftWindow.activeSelf);
-            }
-            if (Input.GetKeyDown(KeyCode.M))
-            {
-                _rightWindow.SetActive(!_rightWindow.activeSelf);
             }
         }
 
